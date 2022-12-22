@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Informations du PC et du serveur Minecraft</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdbootstrap/pro/css/mdb.min.css">
+  <style>
+    /* Personnalisez votre feuille de style ici */
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Informations du PC</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Température du CPU</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Utilisation de la mémoire</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Utilisation du CPU</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Serveur Minecraft</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container mt-5">
+  <div class="container mt-5">
+    <h1>Température du CPU</h1>
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <div id="cpu-temp" class="mt-5 mb-5"></div>
+      </div>
+    </div>
+
+    <h1>Utilisation de la mémoire</h1>
+    <div class="row justify-content-center">
+      <div class="col-8">
+        <canvas id="memory-usage-chart" class="mb-5"></canvas>
+      </div>
+    </div>
+
+    <h1>Utilisation du CPU</h1>
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <div id="cpu-usage-gauge" class="mt-5 mb-5"></div>
+      </div>
+    </div>
+
+    <h1>Serveur Minecraft</h1>
+    <div id="minecraft-server-info" class="mb-5"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mdbootstrap/pro/js/mdb.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/justgage@1.3.2/justgage.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+  <script>
+    // Initialise les jauges et le graphique
+    var cpuTempGauge = new JustGage({
+      id: "cpu-temp",
+      value: 0,
+      min: 0,
+      max: 100,
+      title: "Température du CPU (°C)",
+      label: "",
+      gaugeColor: "lightgrey",
+      levelColors: ["#4CAF50"],
+      pointer: true,
+      pointerOptions: {
+        toplength: -15,
+        bottomlength: 10,
+        bottomwidth: 12,
+        color: "#8e8e93"
+      },
+      counter: true
+    });
+
+    var memoryUsageChart = new Chart(document.getElementById("memory-usage-chart"), {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Utilisation de la mémoire (en %)",
+          data: [],
+          backgroundColor: "rgba(0, 0, 0, 0)",
+          borderColor: "#4CAF50",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              max: 100
+            }
+          }]
+        },
+        legend: {
+          display: false
+        }
+      }
+    });
+
+    var cpuUsageGauge = new JustGage({
+      id: "cpu-usage-gauge",
+      value: 0,
+      min: 0,
+      max: 100,
+      title: "Utilisation du CPU (en %)",
+      label: "",
+      gaugeColor: "lightgrey",
+      levelColors: ["#4CAF50"],
+      pointer: true,
+      pointerOptions: {
+        toplength: -15,
+        bottomlength: 10,
+        bottomwidth: 12,
+        color: "#8e8e93"
+      },
+      counter: true
+    });
+
+    // Met à jour la jauge de température du CPU toutes les secondes
+    setInterval(function() {
+      $.get("/cpu-temp.txt", function(data) {
+        cpuTempGauge.refresh(parseInt(data));
+      });
+    }, 1000);
+
+    // Met à jour le graphique d'utilisation de la mémoire toutes les secondes
+    setInterval(function() {
+      $.get("/memory-usage.txt", function(data) {
+        var memoryUsage = parseInt(data);
+        memoryUsageChart.data.labels.push("");
+        memoryUsageChart.data.datasets[0].data.push(memoryUsage);
+        memoryUsageChart.update();
+      });
+    }, 1000);
+
+    // Met à jour la jauge d'utilisation du CPU toutes les secondes
+    setInterval(function() {
+      $.get("/cpu-usage.txt", function(data) {
+        cpuUsageGauge.refresh(parseInt(data));
+      });
+    }, 1000);
+
+    // Affiche les informations du serveur Minecraft
+    $.get("/minecraft-server-info.txt", function(data) {
+      $("#minecraft-server-info").html(data);
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Informations du PC</title>
+</head>
+<body>
+  <h1>Informations du PC</h1>
+
+  <h2>Température du CPU</h2>
+  <div id="cpu-temp"></div>
+
+  <h2>Utilisation de la mémoire</h2>
+  <div id="memory-usage"></div>
+
+  <h2>Utilisation du CPU</h2>
+  <div id="cpu-usage"></div>
+
+  <script>
+    function updateInfo() {
+      // Récupère la température du CPU
+      fetch("/cpu-temp.txt")
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById("cpu-temp").innerHTML = 65;
+        });
+
+      // Récupère l'utilisation de la mémoire
+      fetch("/memory-usage.txt")
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById("memory-usage").innerHTML = text;
+        });
+
+      // Récupère l'utilisation du CPU
+      fetch("/cpu-usage.txt")
+        .then(response => response.text())
+        .then(text => {
+          document.getElementById("cpu-usage").innerHTML = text;
+        });
+    }
+
+    // Rafraîchit les informations toutes les 10 secondes
+    setInterval(updateInfo, 10000);
+  </script>
+</body>
+</html>

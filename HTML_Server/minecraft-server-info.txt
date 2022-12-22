@@ -1,0 +1,3 @@
+Nom du serveur : Mon serveur Minecraft
+Version : 1.16.5
+Joueurs en ligne : 3/20
